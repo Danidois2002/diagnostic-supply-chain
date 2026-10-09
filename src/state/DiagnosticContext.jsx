@@ -1,9 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { QUESTIONS } from '../data.js';
+import { QUESTIONS } from '../../shared/data.js';
 
-/* État du diagnostic, sauvegardé dans le navigateur (jamais envoyé) */
+/* État du diagnostic, sauvegardé dans le navigateur.
+   Il n'est envoyé à l'API que si la personne choisit d'enregistrer son diagnostic (savedId = son identifiant). */
 const STORE_KEY = 'diagnostic-supply-chain-v1';
-const emptyState = () => ({ lead: null, answers: {}, theme: 0, done: false });
+const emptyState = () => ({ lead: null, answers: {}, theme: 0, done: false, savedId: null });
 
 function load() {
   try { return { ...emptyState(), ...JSON.parse(localStorage.getItem(STORE_KEY)) }; } catch { return emptyState(); }

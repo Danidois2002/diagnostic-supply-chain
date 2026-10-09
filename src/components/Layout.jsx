@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { QUESTIONS } from '../data.js';
+import { QUESTIONS } from '../../shared/data.js';
 import { useDiagnostic } from '../state/DiagnosticContext.jsx';
 import { SectionLink } from './ui.jsx';
 

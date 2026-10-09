@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { LEVELS, LEXIQUE } from '../data.js';
+import { LEVELS, LEXIQUE } from '../../shared/data.js';
 import { RiskList } from '../components/ui.jsx';
 
 /* Fenêtre « sheet » : définition d'un terme, détail d'un niveau, information */

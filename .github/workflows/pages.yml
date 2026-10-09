@@ -4,7 +4,7 @@ name: Site
 on:
   push:
     branches: [main]
-    paths-ignore: ['**/*.md', 'docs/**']
+    paths-ignore: ['**/*.md', 'docs/**', 'api/**', 'render.yaml', '.github/workflows/api.yml']
   workflow_dispatch:
 
 permissions:

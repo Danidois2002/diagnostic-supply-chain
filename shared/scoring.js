@@ -1,4 +1,4 @@
-import { LEVEL_ORDER, QUESTIONS, THEMES, THEME_QUESTIONS } from '../data.js';
+import { LEVEL_ORDER, QUESTIONS, THEMES, THEME_QUESTIONS } from './data.js';
 
 /* =========================================================
    Calcul du résultat : modèle de maturité « en escalier »

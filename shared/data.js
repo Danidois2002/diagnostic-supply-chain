@@ -1,5 +1,5 @@
 /* =========================================================
-   Contenu du diagnostic (repris du projet d'origine)
+   Contenu du diagnostic, partagé par le site (src/) et l'API (api/)
    ========================================================= */
 
 /* Les 4 niveaux de maturité, du moins au plus mature */
@@ -37,7 +37,7 @@ export const LEVELS = {
     short: 'Collaborative',
     image: 'img/niveau-c.webp',
     description: "Maîtrise totale des flux d'un bout à l'autre de la chaîne, système hyperconnecté plus efficace, fiable et performant dans son intégralité",
-    details: "Afin de gagner en maturité, Logistics vous donne l'opportunité de bénéficier du savoir et de l'expérience d'un expert Supply Chain au travers d'un diagnostic de votre logistique et votre supply chain. Vous recevrez ainsi des recommandations spécifiques pour votre situation particulière, tenant compte de vos ressources et vos objectifs propres !",
+    details: "Ce niveau de maturité reflète une Supply Chain pilotée de bout en bout, en véritable collaboration avec vos fournisseurs, vos clients et vos prestataires. Les informations sont partagées en temps réel, les prévisions et les approvisionnements sont construits ensemble (par exemple en Gestion Partagée des Approvisionnements) et les capacités de transport ou de stockage sont mutualisées avec d'autres acteurs. Votre chaîne logistique gagne ainsi en efficience, en fiabilité et en résilience face aux aléas. L'enjeu est désormais de faire durer cette dynamique : entretenir la confiance avec vos partenaires, partager équitablement les gains et continuer à innover.",
     risks: [],
   },
 };

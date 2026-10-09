@@ -1,0 +1,26 @@
+# Déploiement de l'API sur Render (Blueprint) : New → Blueprint → ce dépôt.
+# La base de données est hébergée sur Neon : coller son URL dans DATABASE_URL lors de la création.
+# Pas de rootDir : l'API utilise aussi le dossier shared/ (contenu du questionnaire et calcul du score).
+services:
+  - type: web
+    name: diagnostic-supply-chain-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm ci --prefix api --omit=dev
+    startCommand: node api/src/server.js
+    healthCheckPath: /api/health
+    buildFilter:
+      paths:
+        - api/**
+        - shared/**
+        - render.yaml
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "22"
+      - key: DATABASE_URL
+        sync: false
+      - key: CORS_ORIGINS
+        value: https://danidois2002.github.io

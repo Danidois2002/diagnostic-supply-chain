@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LEVEL_ORDER, LEVELS, LEXIQUE, QUESTIONS, THEMES, THEME_QUESTIONS } from '../data.js';
+import { LEVEL_ORDER, LEVELS, LEXIQUE, QUESTIONS, THEMES, THEME_QUESTIONS } from '../../shared/data.js';
 import { lvlVar } from '../lib/format.js';
-import { computeResults } from '../lib/scoring.js';
+import { computeResults } from '../../shared/scoring.js';
 import { useDiagnostic } from '../state/DiagnosticContext.jsx';
 import { useSheet } from '../state/SheetContext.jsx';
 import { Reveal, SectionLink, StartLink } from '../components/ui.jsx';
@@ -38,7 +38,7 @@ function ResumeNote() {
   let content = null;
   if (state.done && isComplete) {
     const { level } = computeResults(state.answers);
-    content = <>Votre dernier résultat : <strong>{LEVELS[level].title}</strong>. <Link to="/resultats">Revoir le résultat →</Link></>;
+    content = <>Votre dernier résultat : <strong>{LEVELS[level].title}</strong>. <Link to={state.savedId ? `/resultats/${state.savedId}` : '/resultats'}>Revoir le résultat →</Link></>;
   } else if (answered > 0) {
     content = <>{`Diagnostic en cours : ${answered} / ${QUESTIONS.length} réponses. `}<Link to="/diagnostic">Reprendre →</Link></>;
   }
@@ -127,7 +127,7 @@ function Steps() {
           <Reveal as="li" className="step">
             <span className="step-num">01</span>
             <h3>Présentez votre entreprise</h3>
-            <p>Quelques informations pour personnaliser votre diagnostic : nom de l'entreprise, fonction, coordonnées.</p>
+            <p>Quelques informations pour personnaliser votre diagnostic : nom de l'entreprise, fonction et, si vous le souhaitez, vos coordonnées.</p>
           </Reveal>
           <Reveal as="li" className="step">
             <span className="step-num">02</span>

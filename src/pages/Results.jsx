@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
-import { LEVEL_ORDER, LEVELS } from '../data.js';
+import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { LEVEL_ORDER, LEVELS } from '../../shared/data.js';
+import { computeResults, SAMPLE_ANSWERS, THRESHOLD } from '../../shared/scoring.js';
+import { getDiagnostic, listToAnswers } from '../lib/api.js';
 import { lvlVar, pct } from '../lib/format.js';
-import { computeResults, SAMPLE_ANSWERS, THRESHOLD } from '../lib/scoring.js';
 import { useDiagnostic } from '../state/DiagnosticContext.jsx';
 import { useSheet } from '../state/SheetContext.jsx';
+import CompareCard, { useStats } from '../components/CompareCard.jsx';
+import { SaveOffer, ShareLink } from '../components/ShareCard.jsx';
 import { RiskList } from '../components/ui.jsx';
 
 const BADGES = {
@@ -14,11 +17,76 @@ const BADGES = {
   progress: <span className="badge badge-minimal">○ Non atteint</span>,
 };
 
+const longDate = (date) => new Date(date).toLocaleDateString('fr-BE', { day: 'numeric', month: 'long', year: 'numeric' });
+
+/* #/resultats (diagnostic de cette personne) et #/exemple (réponses fictives) */
 export default function Results({ sample = false }) {
-  const { state, reset, isComplete } = useDiagnostic();
+  const { state, isComplete } = useDiagnostic();
+  const saveError = useLocation().state?.saveError;
+
+  if (sample) return <ResultView mode="sample" answers={SAMPLE_ANSWERS} company="Entreprise exemple" />;
+  if (!isComplete) return <Navigate to="/diagnostic" replace />;
+  if (state.savedId) return <Navigate to={`/resultats/${state.savedId}`} replace />;
+  return <ResultView mode="local" answers={state.answers} company={state.lead?.entreprise} saveError={saveError} />;
+}
+
+/* #/resultats/:id : diagnostic enregistré, ouvert par son lien */
+export function SavedResult() {
+  const { id } = useParams();
+  const { state, isComplete } = useDiagnostic();
+  const own = state.savedId === id && isComplete; // c'est le sien : tout est déjà dans le navigateur
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+  const [slow, setSlow] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    if (own) return undefined;
+    let alive = true;
+    setData(null);
+    setError(null);
+    setSlow(false);
+    getDiagnostic(id, { onSlow: () => alive && setSlow(true) })
+      .then((d) => alive && setData(d))
+      .catch((e) => alive && setError(e));
+    return () => { alive = false; };
+  }, [id, own, attempt]);
+
+  if (own) return <ResultView mode="own" answers={state.answers} company={state.lead?.entreprise} savedId={id} />;
+  if (data) return <ResultView mode="shared" answers={listToAnswers(data.answers)} company={data.company} savedId={id} createdAt={data.createdAt} />;
+
+  return (
+    <div className="view" id="view-results">
+      <section className="quiz-step loader">
+        {error ? (
+          <>
+            <p>{error.status === 404 ? 'Ce diagnostic est introuvable.' : "Le diagnostic n'a pas pu être chargé."}</p>
+            <p className="loader-note">{error.status === 404 ? 'Le lien est peut-être incomplet.' : error.message}</p>
+            <div className="loader-actions">
+              {error.status !== 404 && <button className="btn btn-ink" type="button" onClick={() => setAttempt((n) => n + 1)}>Réessayer</button>}
+              <Link className="btn btn-yellow" to="/diagnostic">Faire mon diagnostic</Link>
+            </div>
+          </>
+        ) : (
+          <>
+            <p>Chargement du diagnostic…</p>
+            {slow && <p className="loader-note">Le serveur se réveille (hébergement gratuit) : cela peut prendre jusqu'à 30 secondes.</p>}
+          </>
+        )}
+      </section>
+    </div>
+  );
+}
+
+/* Page de résultats. mode : 'local' (pas enregistré), 'own' (enregistré, le sien),
+   'shared' (ouvert depuis un lien partagé) ou 'sample' (exemple fictif) */
+function ResultView({ mode, answers, company, savedId, createdAt, saveError }) {
+  const { reset } = useDiagnostic();
   const { openSheet, openLevel } = useSheet();
   const navigate = useNavigate();
+  const stats = useStats();
   const [animated, setAnimated] = useState(false);
+  const visitor = mode === 'sample' || mode === 'shared'; // ce n'est pas son propre diagnostic
 
   // Les barres se remplissent après l'affichage
   useEffect(() => {
@@ -26,18 +94,15 @@ export default function Results({ sample = false }) {
     return () => cancelAnimationFrame(frame);
   }, []);
 
-  if (!sample && !isComplete) return <Navigate to="/diagnostic" replace />;
-
-  const r = computeResults(sample ? SAMPLE_ANSWERS : state.answers);
-  const lead = sample ? { entreprise: 'Entreprise exemple' } : state.lead;
-  const level = LEVELS[r.level];
-  const markerPos = Math.min(97, Math.max(3, r.score)); // le repère reste lisible aux extrémités
-  const date = new Date().toLocaleDateString('fr-BE', { day: 'numeric', month: 'long', year: 'numeric' });
-
   const restart = () => {
-    if (!sample) reset(); // l'exemple ne touche pas au diagnostic en cours
+    if (!visitor) reset(); // un exemple ou un lien partagé ne touche pas au diagnostic en cours
     navigate('/diagnostic');
   };
+
+  const r = computeResults(answers);
+  const level = LEVELS[r.level];
+  const markerPos = Math.min(97, Math.max(3, r.score)); // le repère reste lisible aux extrémités
+  const themeAverages = stats ? stats.themes : null;
 
   const requestExpert = () => openSheet({
     kicker: 'Version de démonstration',
@@ -45,7 +110,7 @@ export default function Results({ sample = false }) {
     body: (
       <>
         <p className="sheet-lead">Dans la version utilisée en entreprise, ce bouton met en relation avec un expert Supply Chain pour un diagnostic complet.</p>
-        <p>Cette démonstration n'envoie aucune donnée. Vous pouvez en revanche télécharger votre rapport en PDF.</p>
+        <p>Dans cette démonstration, aucune demande n'est transmise. Vous pouvez en revanche télécharger votre rapport en PDF ou partager le lien de votre résultat.</p>
       </>
     ),
   });
@@ -54,14 +119,15 @@ export default function Results({ sample = false }) {
     <div className={`view${animated ? ' is-animated' : ''}`} id="view-results">
       <div className="print-head">
         <img src="img/logo-logistics.webp" alt="Logistics" width="154" height="32" />
-        <p>Résultats du test de maturité Supply Chain · <span id="print-date">document généré le {date}</span></p>
+        <p>Résultats du test de maturité Supply Chain · <span id="print-date">document généré le {longDate(Date.now())}</span></p>
       </div>
 
       <section className="result-hero" id="result-hero">
         <div className="container result-hero-grid">
           <div className="result-copy">
-            {sample && <p className="sample-banner">Exemple de résultat avec des réponses fictives. <Link to="/diagnostic">Faire mon diagnostic →</Link></p>}
-            <p className="eyebrow">Diagnostic{lead?.entreprise ? ` · ${lead.entreprise}` : ''}</p>
+            {mode === 'sample' && <p className="sample-banner">Exemple de résultat avec des réponses fictives. <Link to="/diagnostic">Faire mon diagnostic →</Link></p>}
+            {mode === 'shared' && <p className="sample-banner">Diagnostic partagé, réalisé le {longDate(createdAt)}. <Link to="/diagnostic">Faire mon propre diagnostic →</Link></p>}
+            <p className="eyebrow">Diagnostic{company ? ` · ${company}` : ''}</p>
             <h1>Votre Supply Chain est au niveau <span className="lvl-name" style={{ '--lvl': lvlVar(r.level) }}>{level.title}</span></h1>
             <p className="result-lead">{level.description}.</p>
             <div className="scale" role="img" aria-label={`Niveau ${level.rank} sur 4, score de maturité de ${r.score} sur 100`}>
@@ -80,6 +146,9 @@ export default function Results({ sample = false }) {
       </section>
 
       <section className="container result-grid">
+        {mode === 'own' && <ShareLink id={savedId} />}
+        {mode === 'local' && <SaveOffer initialError={saveError} />}
+
         <article className="card">
           <h2 className="card-title">Progression par niveau</h2>
           <p className="card-sub">Score de maturité : <strong id="maturity-score">{r.score}</strong>/100. Un niveau est validé dès que {pct.format(THRESHOLD * 100)}&nbsp;% de ses points sont acquis (trait sur la barre) et que les niveaux précédents le sont aussi.</p>
@@ -108,20 +177,36 @@ export default function Results({ sample = false }) {
 
         <article className="card">
           <h2 className="card-title">Mise en place par thématique</h2>
-          <p className="card-sub">Indicatif : « Mis en place » compte pour 100&nbsp;%, « En cours » pour 50&nbsp;%.</p>
+          <p className="card-sub">
+            Indicatif : « Mis en place » compte pour 100&nbsp;%, « En cours » pour 50&nbsp;%.
+            {themeAverages && ' Le trait jaune indique la moyenne des entreprises.'}
+          </p>
           <table className="dist themes-chart" id="theme-scores">
             <thead><tr><th scope="col">Thématique</th><th scope="col">Mise en place</th><th scope="col">Score</th></tr></thead>
             <tbody>
-              {r.themes.map((t) => (
-                <tr key={t.title}>
-                  <th scope="row">{t.title}</th>
-                  <td><div className="bar bar-mono" title={`${t.title} : ${t.score} % mis en place`}><span style={{ '--w': `${t.score}%` }} /></div></td>
-                  <td className="num">{pct.format(t.score)} %</td>
-                </tr>
-              ))}
+              {r.themes.map((t, i) => {
+                const average = themeAverages?.[i];
+                return (
+                  <tr key={t.title}>
+                    <th scope="row">{t.title}</th>
+                    <td>
+                      <div
+                        className={`bar bar-mono${average != null ? ' bar-avg' : ''}`}
+                        style={average != null ? { '--avg': `${average}%` } : undefined}
+                        title={`${t.title} : ${t.score} % mis en place${average != null ? ` (moyenne des entreprises : ${average} %)` : ''}`}
+                      >
+                        <span style={{ '--w': `${t.score}%` }} />
+                      </div>
+                    </td>
+                    <td className="num">{pct.format(t.score)} %</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </article>
+
+        <CompareCard stats={stats} result={r} excludeSelf={mode === 'own' || mode === 'shared'} />
 
         <article className="card card-wide" id="level-detail">
           <div className="detail-grid">
@@ -162,7 +247,7 @@ export default function Results({ sample = false }) {
           <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" strokeWidth="2" d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16" /></svg>
           Télécharger mon rapport (PDF)
         </button>
-        <button className="btn btn-ghost" type="button" id="restart" onClick={restart}>{sample ? 'Faire mon propre diagnostic' : 'Refaire le diagnostic'}</button>
+        <button className="btn btn-ghost" type="button" id="restart" onClick={restart}>{visitor ? 'Faire mon propre diagnostic' : 'Refaire le diagnostic'}</button>
       </section>
     </div>
   );

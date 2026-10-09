@@ -1,0 +1,24 @@
+# Lance les tests de l'API à chaque modification de l'API ou du code partagé
+name: API
+
+on:
+  push:
+    paths: ['api/**', 'shared/**', '.github/workflows/api.yml']
+  pull_request:
+    paths: ['api/**', 'shared/**']
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - run: npm ci
+      - run: npm test

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ANSWERS, QUESTIONS, THEMES, THEME_QUESTIONS } from '../data.js';
+import { ANSWERS, QUESTIONS, THEMES, THEME_QUESTIONS } from '../../shared/data.js';
+import { saveDiagnostic } from '../lib/api.js';
 import { reducedMotion } from '../lib/format.js';
 import { useDiagnostic } from '../state/DiagnosticContext.jsx';
 import { TermText } from '../components/ui.jsx';
@@ -26,11 +27,19 @@ export default function Quiz() {
 
 /* ---------- Étape 1 : informations ---------- */
 const FIELDS = [
-  { name: 'entreprise', label: "Nom de l'entreprise", type: 'text', autoComplete: 'organization', error: "Indiquez le nom de l'entreprise." },
-  { name: 'fonction', label: "Fonction dans l'entreprise", type: 'text', autoComplete: 'organization-title', error: 'Indiquez votre fonction.' },
-  { name: 'email', label: 'Adresse e-mail', type: 'email', autoComplete: 'email', error: 'Indiquez une adresse e-mail valide.' },
-  { name: 'gsm', label: 'Numéro de téléphone', type: 'tel', autoComplete: 'tel', inputMode: 'tel', error: 'Indiquez un numéro de téléphone valide.' },
+  { name: 'entreprise', label: "Nom de l'entreprise", type: 'text', autoComplete: 'organization', required: true, error: "Indiquez le nom de l'entreprise." },
+  { name: 'fonction', label: "Fonction dans l'entreprise", type: 'text', autoComplete: 'organization-title', required: true, error: 'Indiquez votre fonction.' },
+  { name: 'email', label: 'Adresse e-mail', type: 'email', autoComplete: 'email', error: 'Indiquez une adresse e-mail valide, ou laissez le champ vide.' },
+  { name: 'gsm', label: 'Numéro de téléphone', type: 'tel', autoComplete: 'tel', inputMode: 'tel', error: 'Indiquez un numéro de téléphone valide, ou laissez le champ vide.' },
 ];
+
+/* Un champ facultatif vide est valide ; rempli, il doit être correct */
+function isValid(input, required) {
+  const value = input.value.trim();
+  if (!value) return !required;
+  if (input.name === 'gsm') return value.replace(/D/g, '').length >= 9;
+  return input.checkValidity();
+}
 
 function LeadStep({ onDone }) {
   const { update } = useDiagnostic();
@@ -41,11 +50,7 @@ function LeadStep({ onDone }) {
     e.preventDefault();
     const form = e.currentTarget;
     const inputs = FIELDS.map(({ name }) => form.elements.namedItem(name));
-    const result = Object.fromEntries(inputs.map((input) => {
-      const value = input.value.trim();
-      const ok = input.name === 'gsm' ? value.replace(/\D/g, '').length >= 9 : Boolean(value) && input.checkValidity();
-      return [input.name, ok];
-    }));
+    const result = Object.fromEntries(FIELDS.map(({ required }, i) => [inputs[i].name, isValid(inputs[i], required)]));
     setValidity(result);
     const firstInvalid = inputs.find((input) => !result[input.name]);
     if (firstInvalid) {
@@ -54,7 +59,8 @@ function LeadStep({ onDone }) {
       return;
     }
     setError('');
-    update({ lead: Object.fromEntries(inputs.map((input) => [input.name, input.value.trim()])), theme: 0 });
+    const lead = Object.fromEntries(inputs.map((input) => [input.name, input.value.trim()]));
+    update({ lead: { ...lead, consent: form.elements.namedItem('consent').checked }, theme: 0, savedId: null });
     onDone();
   };
 
@@ -73,16 +79,20 @@ function LeadStep({ onDone }) {
           <p>Ces informations personnalisent votre résultat et votre rapport.</p>
           <p className="demo-note">
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" strokeWidth="2" d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z" /></svg>
-            Version de démonstration : vos réponses restent dans votre navigateur et ne sont envoyées nulle part.
+            Vos réponses restent dans votre navigateur, sauf si vous cochez la case d'enregistrement. Dans ce cas, vos coordonnées sont effacées au bout de 30 jours.
           </p>
         </div>
         <form className="card lead-form" id="lead-form" noValidate onSubmit={onSubmit} onInput={onInput}>
-          {FIELDS.map(({ name, label, type, autoComplete, inputMode }) => (
+          {FIELDS.map(({ name, label, type, autoComplete, inputMode, required }) => (
             <label className="field" key={name}>
-              <span>{label}</span>
-              <input type={type} name={name} autoComplete={autoComplete} inputMode={inputMode} required aria-invalid={name in validity ? String(!validity[name]) : undefined} />
+              <span>{label}{!required && <small className="field-hint"> · facultatif</small>}</span>
+              <input type={type} name={name} autoComplete={autoComplete} inputMode={inputMode} required={required} aria-invalid={name in validity ? String(!validity[name]) : undefined} />
             </label>
           ))}
+          <label className="consent">
+            <input type="checkbox" name="consent" />
+            <span>Enregistrer mon diagnostic pour obtenir un lien de partage. Il comptera aussi, anonymement, dans la comparaison entre entreprises. Mes coordonnées sont effacées après 30 jours.</span>
+          </label>
           <p className="form-error" id="lead-error" role="alert">{error}</p>
           <button className="btn btn-ink btn-lg btn-block" type="submit">Commencer le diagnostic <span aria-hidden="true">→</span></button>
         </form>
@@ -116,12 +126,20 @@ function QuestionsStep() {
   const [missing, setMissing] = useState(null); // question signalée comme sans réponse
   const [error, setError] = useState('');
   const [scrollRequest, setScrollRequest] = useState(null);
+  const [saving, setSaving] = useState(null); // null, 'saving' ou 'slow' (serveur en veille)
   const scrollTimer = useRef(null);
+  const mounted = useRef(true);
   const theme = THEMES[state.theme];
   const questions = THEME_QUESTIONS[state.theme];
   const last = state.theme === THEMES.length - 1;
 
-  useEffect(() => () => clearTimeout(scrollTimer.current), []);
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      clearTimeout(scrollTimer.current);
+      mounted.current = false;
+    };
+  }, []);
 
   // Après un changement de thématique : vers la question signalée, sinon en haut de page
   useEffect(() => {
@@ -138,7 +156,8 @@ function QuestionsStep() {
   };
 
   const answer = (n, value) => {
-    update((s) => ({ answers: { ...s.answers, [n]: value } }));
+    // Une réponse modifiée : le diagnostic déjà enregistré ne correspond plus
+    update((s) => ({ answers: { ...s.answers, [n]: value }, savedId: s.answers[n] === value ? s.savedId : null }));
     if (missing === n) setMissing(null);
 
     // Fait glisser la question suivante sans réponse dans le champ de vision
@@ -152,15 +171,29 @@ function QuestionsStep() {
     }, 220);
   };
 
-  const seeResults = () => {
+  const seeResults = async () => {
     if (!isComplete) {
       const left = QUESTIONS.length - answered;
       goToTheme(THEME_QUESTIONS.findIndex((qs) => qs.includes(firstUnanswered)), firstUnanswered);
       setError(`Il reste ${left} question${left > 1 ? 's' : ''} sans réponse. Complétez-${left > 1 ? 'les' : 'la'} pour découvrir votre résultat.`);
       return;
     }
-    update({ done: true });
-    navigate('/resultats');
+    // Déjà enregistré avec ces réponses, ou pas d'accord pour enregistrer : résultat direct
+    if (state.savedId || !state.lead?.consent) {
+      update({ done: true });
+      navigate(state.savedId ? `/resultats/${state.savedId}` : '/resultats');
+      return;
+    }
+    setSaving('saving');
+    try {
+      const saved = await saveDiagnostic(state.lead, state.answers, { onSlow: () => mounted.current && setSaving('slow') });
+      update({ done: true, savedId: saved.id });
+      if (mounted.current) navigate(`/resultats/${saved.id}`);
+    } catch (err) {
+      // Le résultat s'affiche quand même ; la page de résultats propose de réessayer
+      update({ done: true });
+      if (mounted.current) navigate('/resultats', { state: { saveError: err.message } });
+    }
   };
 
   const themeDone = questions.every((n) => state.answers[n]);
@@ -213,8 +246,9 @@ function QuestionsStep() {
           <div className="quiz-actions">
             <button className="btn btn-ghost" type="button" id="prev-theme" hidden={state.theme === 0} onClick={() => goToTheme(state.theme - 1)}>← Thème précédent</button>
             <button className={`btn btn-ink${themeDone ? ' is-ready' : ''}`} type="button" id="next-theme" hidden={last} onClick={() => goToTheme(state.theme + 1)}>Thème suivant →</button>
-            <button className={`btn btn-yellow${isComplete ? ' is-ready' : ''}`} type="button" id="see-results" hidden={!last && !isComplete} onClick={seeResults}>Voir mes résultats →</button>
+            <button className={`btn btn-yellow${isComplete ? ' is-ready' : ''}`} type="button" id="see-results" hidden={!last && !isComplete} disabled={Boolean(saving)} onClick={seeResults}>{saving ? 'Enregistrement…' : 'Voir mes résultats →'}</button>
           </div>
+          <p className="form-status" role="status">{saving === 'slow' ? "Le serveur se réveille (hébergement gratuit) : l'enregistrement peut prendre jusqu'à 30 secondes." : ''}</p>
         </div>
       </div>
     </section>

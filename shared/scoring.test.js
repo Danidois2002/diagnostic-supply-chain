@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { QUESTIONS } from '../data.js';
+import { QUESTIONS } from './data.js';
 import { computeResults, SAMPLE_ANSWERS, STEP_QUESTIONS } from './scoring.js';
 
 /* Réponses où chaque question vaut `value`, sauf celles précisées */

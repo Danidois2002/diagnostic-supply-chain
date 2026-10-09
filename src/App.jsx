@@ -4,9 +4,9 @@ import { DiagnosticProvider } from './state/DiagnosticContext.jsx';
 import { SheetProvider } from './state/SheetContext.jsx';
 import Landing from './pages/Landing.jsx';
 import Quiz from './pages/Quiz.jsx';
-import Results from './pages/Results.jsx';
+import Results, { SavedResult } from './pages/Results.jsx';
 
-/* Mêmes adresses que la version précédente : #/, #/diagnostic, #/resultats, #/exemple */
+/* Adresses : #/, #/diagnostic, #/resultats (le sien), #/resultats/:id (lien partageable), #/exemple */
 export default function App() {
   return (
     <HashRouter>
@@ -16,6 +16,7 @@ export default function App() {
             <Route element={<Layout />}>
               <Route path="diagnostic" element={<Quiz />} />
               <Route path="resultats" element={<Results />} />
+              <Route path="resultats/:id" element={<SavedResult />} />
               <Route path="exemple" element={<Results sample />} />
               <Route path="*" element={<Landing />} />
             </Route>

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LEXIQUE } from '../data.js';
+import { LEXIQUE } from '../../shared/data.js';
 import { useDiagnostic } from '../state/DiagnosticContext.jsx';
 import { useSheet } from '../state/SheetContext.jsx';
 
