@@ -3,12 +3,12 @@
    ========================================================= */
 
 /* Les 4 niveaux de maturité, du moins au plus mature */
-const LEVELS = {
+export const LEVELS = {
   F: {
     rank: 1,
     title: 'Supply Chain Fragmentée',
     short: 'Fragmentée',
-    image: 'assets/img/niveau-f.webp',
+    image: 'img/niveau-f.webp',
     description: 'Fonctionnement en silos & en réaction à la demande',
     details: "Ce niveau de maturité reflète une connaissance peu poussée des composants de la logistique et d'une Supply Chain. Il sous-entend un fonctionnement en silos au sein de votre entreprise ; cela veut dire que la série de risques pour vos activités logistiques est plus forte mais peut vous aider à exploser vos coûts logistiques. Aussi, vous risquez de souffrir des fluctuations de la demande sans pouvoir les anticiper complètement.",
     risks: ['Ruptures de stocks', 'Retards de livraison', 'Coûts logistiques importants', 'Erreurs dans les informations internes'],
@@ -17,7 +17,7 @@ const LEVELS = {
     rank: 2,
     title: 'Excellence interne',
     short: 'Excellence interne',
-    image: 'assets/img/niveau-e.webp',
+    image: 'img/niveau-e.webp',
     description: 'Optimisation des activités internes, anticipation & planification',
     details: "Ce niveau de maturité reflète une réelle maîtrise des activités internes, en les anticipant et en cherchant à les optimiser. Cependant, dans le contexte d'une Supply Chain, les limites de l'entreprise doivent être vues comme étendues jusqu'aux fournisseurs, clients et partenaires clés qui y jouent un rôle central. Ce niveau de maturité sous-entend que cela n'est pas encore intégré, ce qui génère des risques fournisseurs, et qui limite votre visibilité sur l'ensemble de la chaîne. Cela vous rend vulnérable aux éléments extérieurs à vos activités propres.",
     risks: ['Risques fournisseurs (confiance, qualité, etc.)', "Visibilité partielle sur la chaîne d'approvisionnement"],
@@ -26,7 +26,7 @@ const LEVELS = {
     rank: 3,
     title: 'Intégration',
     short: 'Intégration',
-    image: 'assets/img/niveau-i.webp',
+    image: 'img/niveau-i.webp',
     description: "Pilotage en temps réel, interconnexion avec les partenaires clés, hautes performances & utilisation efficiente d'outils digitaux",
     details: "Ce niveau de maturité reflète l'application du concept d'entreprise étendue : vous étendez votre transversalité jusqu'aux partenaires clés, ce qui vous permet de piloter les flux en temps réel. Cette visibilité sur l'ensemble de la chaîne et les interconnexions avec les partenaires crée ainsi un réseau complexe. Cette complexité et l'alignement de vos partenaires avec votre entreprise sont des éléments sensibles à gérer, sources de risques.",
     risks: ['Complexité du réseau', 'Alignement des objectifs long-termes'],
@@ -35,16 +35,16 @@ const LEVELS = {
     rank: 4,
     title: 'Supply Chain Collaborative',
     short: 'Collaborative',
-    image: 'assets/img/niveau-c.webp',
+    image: 'img/niveau-c.webp',
     description: "Maîtrise totale des flux d'un bout à l'autre de la chaîne, système hyperconnecté plus efficace, fiable et performant dans son intégralité",
     details: "Afin de gagner en maturité, Logistics vous donne l'opportunité de bénéficier du savoir et de l'expérience d'un expert Supply Chain au travers d'un diagnostic de votre logistique et votre supply chain. Vous recevrez ainsi des recommandations spécifiques pour votre situation particulière, tenant compte de vos ressources et vos objectifs propres !",
     risks: [],
   },
 };
-const LEVEL_ORDER = ['F', 'E', 'I', 'C'];
+export const LEVEL_ORDER = ['F', 'E', 'I', 'C'];
 
 /* Les 7 thématiques : la première question de chacune, son titre et sa description */
-const THEMES = [
+export const THEMES = [
   { start: 1, title: 'Transversalité en interne', desc: 'Cette section évalue la communication et la collaboration entre les services internes de votre supply chain.' },
   { start: 5, title: 'Sécurisation de la supply chain', desc: "Cette partie examine les mesures prises pour sécuriser l'ensemble de votre chaîne logistique." },
   { start: 9, title: 'Satisfaction client', desc: 'Ici, on mesure la manière dont votre entreprise prend en compte la satisfaction client dans sa logistique.' },
@@ -55,7 +55,7 @@ const THEMES = [
 ];
 
 /* Les 27 affirmations et leur catégorie de notation (F, E, I ou C) */
-const QUESTIONS = [
+export const QUESTIONS = [
   { cat: 'E', text: "Nous disposons d'un système d'information performant et intégré nous permettant d'améliorer la communication entre les fonctions clés de notre supply chain, d'accélérer nos activités logistiques et d'assurer une bonne traçabilité." },
   { cat: 'E', text: "Nous mesurons la performance de nos activités au travers d'indicateurs pour analyser leur alignement avec les objectifs fixés et prendre les actions nécessaires." },
   { cat: 'E', text: 'Nos différents systèmes et outils IT sont interopérables, et nous minimisons ainsi le double encodage.' },
@@ -86,14 +86,14 @@ const QUESTIONS = [
 ];
 
 /* Les 3 réponses possibles (la valeur est celle utilisée par le calcul) */
-const ANSWERS = [
+export const ANSWERS = [
   { value: '0', label: 'Pas du tout' },
   { value: '1', label: 'En cours' },
   { value: '2', label: 'Mis en place' },
 ];
 
 /* Lexique : termes soulignés dans les questions */
-const LEXIQUE = {
+export const LEXIQUE = {
   'Supply Chain': "La Supply Chain englobe la chaîne de l'offre et de la demande, depuis les matières premières jusqu'au client final. Elle traverse toutes les activités logistiques et comprend aussi les flux d'informations et les flux financiers. La Supply Chain a pour but central la satisfaction de la demande des clients, et s'appuie pour cela sur un processus transversal incluant la planification, la coordination et le pilotage des flux dans l'entreprise.",
   'Chaîne logistique': "La chaîne logistique englobe toutes les fonctions clés logistiques (processus de stockage, de production, de transport et de distribution), leurs liens, les flux d'information qu'ils requièrent, et tous les mouvements générés au cours de ces différentes étapes.",
   'Taux de service client': "Le taux de service client est une mesure clé permettant de juger du niveau de service apporté aux clients, c'est-à-dire la capacité à fournir les produits/services selon les temps, les quantités et la qualité convenus. Cet indicateur reflète donc l'efficacité et la fiabilité de la Supply Chain de l'entreprise pour répondre aux attentes de ses clients. Typiquement, le taux de service client se calcule en divisant le nombre de demandes (commandes) satisfaites dans les délais par le nombre total de demandes (commandes), multiplié par 100 pour obtenir un pourcentage.",
@@ -103,3 +103,9 @@ const LEXIQUE = {
   'GPA': "La Gestion Partagée des Approvisionnements (GPA) est une stratégie de réapprovisionnement en continu ayant pour but d'améliorer la disponibilité des produits tout en réduisant les stocks et en augmentant la réactivité. Elle passe par une collaboration étroite entre l'entreprise et ses fournisseurs qui deviennent acteurs dans la gestion des approvisionnements, selon des règles de gestions définies dans un contrat de coopération logistique.",
   'Efficience': "L'efficience est la consommation de ressources utilisées pour atteindre un certain résultat. Gagner en efficience dans ses activités logistiques, c'est en fait tendre vers la maximisation de l'utilisation des ressources (matérielles et immatérielles) sollicitées dans ces activités logistiques.",
 };
+
+/* Numéros des questions de chaque thématique (à partir de 1) */
+export const THEME_QUESTIONS = THEMES.map((theme, i) => {
+  const end = THEMES[i + 1] ? THEMES[i + 1].start : QUESTIONS.length + 1;
+  return Array.from({ length: end - theme.start }, (_, k) => theme.start + k);
+});

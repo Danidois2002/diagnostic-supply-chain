@@ -43,6 +43,7 @@ p { margin: 0; }
 .container { width: min(calc(100% - 40px), var(--container)); margin: 0 auto; }
 .skip-link { position: fixed; top: -60px; left: 16px; z-index: 100; padding: .7rem 1rem; border-radius: 999px; background: var(--ink); color: #fff; font-weight: 700; text-decoration: none; }
 .skip-link:focus { top: 16px; }
+#contenu:focus { outline: none; }
 
 .eyebrow {
   display: inline-flex; align-items: center; gap: .6rem; margin-bottom: 1.1rem;
