@@ -1,4 +1,6 @@
 /* Configuration lue dans les variables d'environnement (voir .env.example) */
+import { randomBytes } from 'node:crypto';
+
 const list = (value, fallback) => (value || fallback).split(',').map((s) => s.trim()).filter(Boolean);
 
 export function loadConfig(env = process.env) {
@@ -13,8 +15,16 @@ export function loadConfig(env = process.env) {
     retentionDays: Number(env.RETENTION_DAYS) || 30,
     // Diagnostics simulés pour que la comparaison ait du sens dès le départ (0 pour désactiver)
     simulations: env.SIMULATIONS === undefined ? 40 : Number(env.SIMULATIONS),
+    // Espace admin. Sans ADMIN_PASSWORD, seul le compte de démonstration (données masquées) existe.
+    adminUsername: env.ADMIN_USERNAME || 'admin',
+    adminPassword: env.ADMIN_PASSWORD || '',
+    demoUsername: 'demo',
+    demoPassword: env.DEMO_PASSWORD || 'diagnostic',
+    // Clé de signature des sessions. Sans valeur : clé aléatoire, les sessions tombent au redémarrage.
+    jwtSecret: env.JWT_SECRET || randomBytes(32).toString('hex'),
     // Limites anti-abus (par adresse IP)
     saveLimit: Number(env.SAVE_LIMIT) || 20, // enregistrements par heure
+    loginLimit: Number(env.LOGIN_LIMIT) || 10, // tentatives de connexion par quart d'heure
     requestLimit: Number(env.REQUEST_LIMIT) || 300, // requêtes par quart d'heure
   };
 }

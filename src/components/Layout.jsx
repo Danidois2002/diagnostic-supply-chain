@@ -7,6 +7,7 @@ import { SectionLink } from './ui.jsx';
 const viewFor = (pathname) => {
   if (pathname.startsWith('/diagnostic')) return 'quiz';
   if (pathname.startsWith('/resultats') || pathname.startsWith('/exemple')) return 'results';
+  if (pathname.startsWith('/admin')) return 'admin';
   return 'landing';
 };
 
@@ -78,7 +79,7 @@ function Footer() {
     <footer className="footer">
       <div className="container footer-inner">
         <img src="img/logo-logistics.webp" alt="Logistics" width="125" height="26" loading="lazy" />
-        <p>Diagnostic de maturité Supply Chain.<br />Version de démonstration réalisée par Danial Bitar.</p>
+        <p>Diagnostic de maturité Supply Chain.<br />Version de démonstration réalisée par Danial Bitar · <Link to="/admin">Espace admin</Link></p>
       </div>
     </footer>
   );

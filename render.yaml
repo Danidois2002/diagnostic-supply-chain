@@ -22,5 +22,11 @@ services:
         value: "22"
       - key: DATABASE_URL
         sync: false
+      # Mot de passe du compte « admin » de l'espace admin (à définir soi-même, jamais dans le dépôt)
+      - key: ADMIN_PASSWORD
+        sync: false
+      # Clé de signature des sessions, générée par Render
+      - key: JWT_SECRET
+        generateValue: true
       - key: CORS_ORIGINS
         value: https://danidois2002.github.io

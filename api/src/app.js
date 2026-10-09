@@ -4,6 +4,8 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import { HttpError } from './errors.js';
+import { adminRoutes } from './routes/admin.js';
+import { authRoutes } from './routes/auth.js';
 import { diagnosticRoutes } from './routes/diagnostics.js';
 
 export function createApp({ db, config }) {
@@ -12,8 +14,8 @@ export function createApp({ db, config }) {
   app.use(helmet());
   app.use(cors({
     origin: config.corsOrigins,
-    methods: ['GET', 'POST'],
-    allowedHeaders: ['Content-Type'],
+    methods: ['GET', 'POST', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     maxAge: 600,
   }));
   app.use(express.json({ limit: '10kb' }));
@@ -29,6 +31,8 @@ export function createApp({ db, config }) {
     await db.query('SELECT 1');
     res.json({ ok: true });
   });
+  app.use('/api/auth', authRoutes(config));
+  app.use('/api/admin', adminRoutes(db, config));
   app.use('/api', diagnosticRoutes(db, config));
 
   app.use((_req, res) => res.status(404).json({ error: 'Route introuvable.' }));

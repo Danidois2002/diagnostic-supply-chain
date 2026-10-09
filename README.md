@@ -4,7 +4,7 @@
 
 **Un quiz interactif pour évaluer la maturité de la Supply Chain d'une entreprise, en 27 questions et 5 minutes.**
 
-Conçu lors de mon stage dans une entreprise de logistique (mai – juin 2025), puis entièrement repensé : UI/UX, passage à React, puis API et base de données.
+Conçu lors de mon stage dans une entreprise de logistique (mai – juin 2025), puis entièrement repensé : UI/UX, passage à React, API, base de données et espace admin.
 
 ![React](https://img.shields.io/badge/React_19-20232A?style=flat-square&logo=react&logoColor=61DAFB)
 ![React Router](https://img.shields.io/badge/React_Router-CA4245?style=flat-square&logo=reactrouter&logoColor=white)
@@ -17,7 +17,7 @@ Conçu lors de mon stage dans une entreprise de logistique (mai – juin 2025), 
 
 <a href="https://danidois2002.github.io/diagnostic-supply-chain/"><img src="https://img.shields.io/badge/D%C3%A9mo-en%20ligne-f1b51c?style=for-the-badge&logo=githubpages&logoColor=black" alt="Voir la démo en ligne" /></a>
 
-🔗 **[danidois2002.github.io/diagnostic-supply-chain](https://danidois2002.github.io/diagnostic-supply-chain/)** · [Voir un exemple de résultat](https://danidois2002.github.io/diagnostic-supply-chain/#/exemple)
+🔗 **[danidois2002.github.io/diagnostic-supply-chain](https://danidois2002.github.io/diagnostic-supply-chain/)** · [Voir un exemple de résultat](https://danidois2002.github.io/diagnostic-supply-chain/#/exemple) · [Espace admin](https://danidois2002.github.io/diagnostic-supply-chain/#/admin) (compte démo : `demo` / `diagnostic`)
 
 <a href="https://danidois2002.github.io/diagnostic-supply-chain/"><img src="docs/preview.webp" alt="Page d'accueil du diagnostic : « Challengez la maturité de votre Supply Chain » et le schéma animé de la chaîne logistique" width="900" /></a>
 
@@ -39,6 +39,24 @@ Conçu lors de mon stage dans une entreprise de logistique (mai – juin 2025), 
    - la définition du niveau obtenu, les risques identifiés et un rapport à télécharger en PDF.
 
 Un lien **« Voir un exemple de résultat »** affiche directement une page de résultats avec des réponses fictives.
+
+## 📊 Espace admin
+
+Accessible depuis le pied de page (`#/admin`), l'équivalent du fichier Excel de la version d'origine, en mieux :
+
+- **indicateurs** : nombre de diagnostics, activité des 30 derniers jours, score moyen, diagnostics avec coordonnées ;
+- **graphique des diagnostics par jour**, avec info-bulle au survol comme au clavier et tableau des données ;
+- **niveaux atteints**, **mise en place moyenne par thématique** et **les 5 pratiques les moins mises en place** : les pistes d'accompagnement les plus utiles ;
+- **liste des diagnostics** : recherche, filtre par niveau, pagination, lien vers chaque résultat et suppression ;
+- **export CSV pour Excel** (séparateur « ; », accents conservés, formules neutralisées) ;
+- un filtre pour **inclure ou non les diagnostics simulés**.
+
+Deux comptes :
+
+| Compte | Accès |
+|---|---|
+| `admin` (mot de passe privé, défini sur l'hébergeur) | tout, y compris les coordonnées, la recherche et la suppression |
+| `demo` / `diagnostic` (public) | lecture seule : les coordonnées sont **masquées par le serveur** (« j•••@a•••.be »), jamais envoyées au navigateur |
 
 ## 🧮 Calcul du niveau
 
@@ -80,10 +98,16 @@ Le site reste utilisable sans l'API : si le serveur ne répond pas, le résultat
 | `GET` | `/api/diagnostics/:id` | Relit un diagnostic par son lien : réponses, résultat et nom de l'entreprise, **jamais** l'e-mail, le téléphone ni la fonction |
 | `GET` | `/api/stats` | Statistiques anonymes : répartition des scores et des niveaux, moyenne par thématique |
 | `GET` | `/api/health` | État du service |
+| `POST` | `/api/auth/login` | Connexion à l'espace admin : renvoie un jeton JWT (8 h) |
+| `GET` | `/api/admin/summary` | Indicateurs et statistiques du tableau de bord |
+| `GET` | `/api/admin/diagnostics` | Liste paginée, filtres par niveau et recherche (admin) |
+| `DELETE` | `/api/admin/diagnostics/:id` | Suppression (admin uniquement) |
+| `GET` | `/api/admin/export.csv` | Export CSV pour Excel |
 
-- **Express 5**, validation des données avec **Zod**, en-têtes de sécurité avec **Helmet**, **CORS** limité au site, **limites anti-abus** par adresse IP.
+- **Express 5**, validation des données avec **Zod**, en-têtes de sécurité avec **Helmet**, **CORS** limité au site, **limites anti-abus** par adresse IP (enregistrements, connexions, requêtes).
+- **Sessions JWT** ; mots de passe comparés en temps constant ; rôles admin et démo vérifiés par le serveur sur chaque route.
 - **PostgreSQL** via `pg` en production (Neon), **PGlite** (PostgreSQL en WebAssembly) en local et pour les tests : rien à installer.
-- **16 tests d'API** (`node:test` + Supertest) sur une vraie base, lancés par GitHub Actions.
+- **32 tests d'API** (`node:test` + Supertest) sur une vraie base, lancés par GitHub Actions.
 
 ### Données et confidentialité
 
@@ -109,7 +133,7 @@ Le site reste utilisable sans l'API : si le serveur ne répond pas, le résultat
 - [x] **Passage à React + Vite**, avec un rendu identique à la version précédente
 - [x] **Nouveau calcul du niveau**, en escalier comme les modèles de maturité : le niveau 4 est atteignable
 - [x] **API Node.js + PostgreSQL** : enregistrement des diagnostics, lien de résultat partageable, comparaison avec les autres entreprises
-- [ ] **Espace admin** : tableau de bord, statistiques et export
+- [x] **Espace admin** : tableau de bord, statistiques, liste des diagnostics, export CSV et compte de démonstration
 
 ## 🚀 Lancer en local
 
@@ -133,6 +157,7 @@ Puis ouvrez [localhost:5173/diagnostic-supply-chain/](http://localhost:5173/diag
 
 1. Créer une base PostgreSQL sur [Neon](https://neon.tech) et copier son URL de connexion.
 2. Sur [Render](https://render.com) : **New → Blueprint**, choisir ce dépôt ([`render.yaml`](render.yaml)) et coller l'URL dans `DATABASE_URL`.
+3. Dans **Environment**, définir `ADMIN_PASSWORD` (le mot de passe du compte `admin`). `JWT_SECRET` est généré par Render.
 
 Au premier démarrage, l'API crée ses tables et les diagnostics simulés. L'hébergement gratuit met l'API en veille : le premier appel peut prendre une trentaine de secondes, et le site l'indique.
 
@@ -146,12 +171,12 @@ Au premier démarrage, l'API crée ses tables et les diagnostics simulés. L'hé
 │   ├── lib/                  # client de l'API, formats
 │   ├── state/                # contextes : diagnostic en cours, fenêtre de détail
 │   ├── components/           # mise en page, partage, comparaison, petits composants
-│   └── pages/                # Accueil, Diagnostic, Résultats
+│   └── pages/                # Accueil, Diagnostic, Résultats, Espace admin
 ├── shared/                   # partagé par le site et l'API
 │   ├── data.js               # le contenu : niveaux, thématiques, questions, lexique
 │   └── scoring.js            # le calcul du niveau et du score (et ses tests)
 ├── api/                      # l'API Node.js + Express
-│   ├── src/                  # serveur, routes, base de données, configuration
+│   ├── src/                  # serveur, routes, connexion, masquage, base de données
 │   ├── db/schema.sql         # le schéma PostgreSQL
 │   └── test/                 # les tests de l'API
 ├── public/img/               # le logo et les illustrations des 4 niveaux
