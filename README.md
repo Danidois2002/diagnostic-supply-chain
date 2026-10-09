@@ -29,8 +29,8 @@ Conçu lors de mon stage dans une entreprise de logistique (mai – juin 2025), 
 2. **Informations** : nom de l'entreprise, fonction et coordonnées, avec validation des champs.
 3. **27 affirmations en 7 thématiques** : réponse « Pas du tout », « En cours » ou « Mis en place ». Les termes techniques sont soulignés et leur définition s'ouvre d'un clic.
 4. **Résultat** :
-   - le niveau de maturité, avec une échelle à 4 niveaux et le score moyen ;
-   - la répartition des réponses par niveau ;
+   - le niveau de maturité et un score sur 100, sur une échelle à 4 niveaux ;
+   - la progression par niveau : points acquis, niveaux validés ou en attente ;
    - le degré de mise en place par thématique ;
    - la définition du niveau obtenu et les risques identifiés ;
    - un rapport à télécharger en PDF.
@@ -39,7 +39,23 @@ Un lien **« Voir un exemple de résultat »** affiche directement une page de r
 
 ## 🧮 Calcul du niveau
 
-Chaque affirmation appartient à un niveau (Fragmentée, Excellence interne, Intégration ou Collaborative). La réponse donnée attribue un niveau ; le niveau final est la moyenne de ces niveaux, arrondie. La logique est pour l'instant identique à la version d'origine (voir la feuille de route).
+Le niveau suit un **modèle en escalier**, comme les modèles de maturité classiques :
+
+| Niveau | Questions qui le valident | Points |
+|---|---|---|
+| 1 · Supply Chain Fragmentée | point de départ | — |
+| 2 · Excellence interne | 18 questions | 36 |
+| 3 · Intégration | 7 questions | 14 |
+| 4 · Supply Chain Collaborative | 2 questions | 4 |
+
+- Chaque réponse rapporte des points : « Pas du tout » = 0, « En cours » = 1, « Mis en place » = 2.
+- Un niveau est **validé dès que 70 % de ses points sont acquis**, et seulement si les niveaux précédents le sont aussi : on ne saute pas d'étape.
+- Le **score de maturité** (0 à 100) suit la même échelle : 25 points par niveau validé, plus la progression vers le niveau suivant.
+
+« Mis en place » partout donne donc le niveau 4 et 100/100.
+
+> [!NOTE]
+> La version d'origine faisait la moyenne des niveaux associés à chaque réponse. Comme 17 questions sur 27 plafonnaient au niveau 2, même « Mis en place » partout donnait le niveau 2 : les niveaux 3 et 4 étaient impossibles à atteindre. Le calcul est dans [`src/lib/scoring.js`](src/lib/scoring.js) et vérifié par des tests automatiques ([`scoring.test.js`](src/lib/scoring.test.js)).
 
 ## 🛠️ Côté technique
 
@@ -48,7 +64,8 @@ Chaque affirmation appartient à un niveau (Fragmentée, Excellence interne, Int
 - **Progression sauvegardée** dans le navigateur (`localStorage`) : on peut fermer l'onglet et reprendre plus tard.
 - **Rapport PDF** généré par une feuille de style d'impression dédiée.
 - **Accessibilité** : navigation au clavier, fenêtres `<dialog>` natives, réglage « réduire les animations » respecté, couleurs des niveaux validées pour le daltonisme.
-- **Déploiement continu** : chaque push sur `main` construit le site et le publie sur GitHub Pages (GitHub Actions).
+- **Tests automatiques** du calcul avec le lanceur de tests intégré à Node.js (`node:test`).
+- **Déploiement continu** : chaque push sur `main` lance les tests, construit le site et le publie sur GitHub Pages (GitHub Actions).
 
 > [!NOTE]
 > Cette version publique est une **démonstration** : aucune donnée n'est envoyée. La version d'origine, réalisée pendant le stage, est en PHP : elle enregistre chaque diagnostic dans un fichier Excel (PhpSpreadsheet), le dépose sur SharePoint et envoie le rapport PDF par e-mail (mPDF, PHPMailer).
@@ -56,7 +73,7 @@ Chaque affirmation appartient à un niveau (Fragmentée, Excellence interne, Int
 ## 🗺️ Feuille de route
 
 - [x] **Passage à React + Vite**, avec un rendu identique à la version précédente
-- [ ] **Nouveau calcul du niveau**, en escalier comme les modèles de maturité, pour que le niveau 4 soit atteignable
+- [x] **Nouveau calcul du niveau**, en escalier comme les modèles de maturité : le niveau 4 est atteignable
 - [ ] **API Node.js + PostgreSQL** : enregistrement des diagnostics, lien de résultat partageable, comparaison avec les autres entreprises
 - [ ] **Espace admin** : tableau de bord, statistiques et export
 
@@ -67,7 +84,7 @@ npm install
 npm run dev
 ```
 
-Puis ouvrez [localhost:5173/diagnostic-supply-chain/](http://localhost:5173/diagnostic-supply-chain/). `npm run build` produit la version de production dans `dist/`.
+Puis ouvrez [localhost:5173/diagnostic-supply-chain/](http://localhost:5173/diagnostic-supply-chain/). `npm test` lance les tests du calcul, `npm run build` produit la version de production dans `dist/`.
 
 ## 📁 Structure
 
@@ -78,7 +95,7 @@ Puis ouvrez [localhost:5173/diagnostic-supply-chain/](http://localhost:5173/diag
 │   ├── App.jsx               # les routes
 │   ├── data.js               # le contenu : niveaux, thématiques, questions, lexique
 │   ├── styles.css            # le design et le rapport imprimable
-│   ├── lib/                  # calcul du résultat, formats
+│   ├── lib/                  # calcul du résultat (et ses tests), formats
 │   ├── state/                # contextes : diagnostic en cours, fenêtre de détail
 │   ├── components/           # mise en page (barre du haut, pied de page) et petits composants
 │   └── pages/                # Accueil, Diagnostic, Résultats

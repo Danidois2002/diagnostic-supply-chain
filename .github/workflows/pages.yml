@@ -1,4 +1,4 @@
-# Construit le site React (Vite) et le publie sur GitHub Pages à chaque push sur main
+# Teste le calcul, construit le site React (Vite) et le publie sur GitHub Pages à chaque push sur main
 name: Site
 
 on:
@@ -26,6 +26,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npm test
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:

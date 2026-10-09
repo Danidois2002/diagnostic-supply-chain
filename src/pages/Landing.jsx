@@ -137,7 +137,7 @@ function Steps() {
           <Reveal as="li" className="step">
             <span className="step-num">03</span>
             <h3>Découvrez votre niveau</h3>
-            <p>Votre niveau de maturité, la répartition de vos réponses, les risques identifiés et votre rapport à télécharger.</p>
+            <p>Votre niveau de maturité, votre score sur 100, votre progression vers le niveau suivant, les risques identifiés et votre rapport à télécharger.</p>
           </Reveal>
         </ol>
       </div>

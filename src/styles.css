@@ -366,6 +366,10 @@ body:not([data-view="landing"]) .footer { display: none; }
 .badge-dominant { background: var(--ink); color: var(--yellow); }
 .badge-present { border: 1.5px solid var(--line-strong); }
 .badge-minimal { color: var(--faint); }
+/* Seuil de validation d'un niveau (70 %) */
+.bar-threshold { position: relative; }
+.bar-threshold::after { content: ""; position: absolute; top: 0; bottom: 0; left: var(--threshold, 70%); width: 2px; margin-left: -1px; background: var(--ink); opacity: .45; }
+.bar-note { font-size: .82rem; color: var(--muted); }
 
 .detail-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: clamp(1.5rem, 4vw, 3rem); }
 .detail-text { margin-top: 1rem; color: var(--ink-2); line-height: 1.8; }
@@ -459,6 +463,12 @@ body:not([data-view="landing"]) .footer { display: none; }
   .result-figure figcaption { margin: 0; }
   .dist { font-size: .85rem; }
   .dist thead th:nth-child(4), .dist td:nth-child(4) { display: none; }
+  /* Progression par niveau : une ligne par niveau, barre pleine largeur et statut en dessous */
+  #levels-progress thead, #levels-progress td:nth-child(3) { display: none; }
+  #levels-progress tbody tr { display: grid; grid-template-columns: 1fr auto; align-items: center; column-gap: .9rem; padding: .8rem 0; border-top: 1px solid var(--line); }
+  #levels-progress tbody th { grid-column: 1 / -1; padding: 0 0 .5rem; border: 0; }
+  #levels-progress td { width: auto; padding: 0; border: 0; }
+  #levels-progress td:nth-child(4) { display: block; }
   .dist tbody th { white-space: normal; }
   .footer-inner { flex-direction: column; align-items: flex-start; }
   .footer p { text-align: left; }

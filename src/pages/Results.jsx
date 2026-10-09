@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { LEVEL_ORDER, LEVELS } from '../data.js';
-import { dec, lvlVar, pct } from '../lib/format.js';
-import { computeResults, SAMPLE_ANSWERS } from '../lib/scoring.js';
+import { lvlVar, pct } from '../lib/format.js';
+import { computeResults, SAMPLE_ANSWERS, THRESHOLD } from '../lib/scoring.js';
 import { useDiagnostic } from '../state/DiagnosticContext.jsx';
 import { useSheet } from '../state/SheetContext.jsx';
 import { RiskList } from '../components/ui.jsx';
 
 const BADGES = {
-  dominant: <span className="badge badge-dominant">★ Dominant</span>,
-  present: <span className="badge badge-present">● Présent</span>,
-  minimal: <span className="badge badge-minimal">○ Minimal</span>,
+  base: <span className="badge badge-present">✓ Acquis</span>,
+  validated: <span className="badge badge-dominant">✓ Validé</span>,
+  pending: <span className="badge badge-present" title="Validez d'abord le niveau précédent">◐ En attente</span>,
+  progress: <span className="badge badge-minimal">○ Non atteint</span>,
 };
 
 export default function Results({ sample = false }) {
@@ -30,7 +31,7 @@ export default function Results({ sample = false }) {
   const r = computeResults(sample ? SAMPLE_ANSWERS : state.answers);
   const lead = sample ? { entreprise: 'Entreprise exemple' } : state.lead;
   const level = LEVELS[r.level];
-  const markerPos = (r.average / 3) * 100;
+  const markerPos = Math.min(97, Math.max(3, r.score)); // le repère reste lisible aux extrémités
   const date = new Date().toLocaleDateString('fr-BE', { day: 'numeric', month: 'long', year: 'numeric' });
 
   const restart = () => {
@@ -63,10 +64,10 @@ export default function Results({ sample = false }) {
             <p className="eyebrow">Diagnostic{lead?.entreprise ? ` · ${lead.entreprise}` : ''}</p>
             <h1>Votre Supply Chain est au niveau <span className="lvl-name" style={{ '--lvl': lvlVar(r.level) }}>{level.title}</span></h1>
             <p className="result-lead">{level.description}.</p>
-            <div className="scale" role="img" aria-label={`Niveau ${level.rank} sur 4, score moyen de ${dec.format(r.average)} sur 3`}>
+            <div className="scale" role="img" aria-label={`Niveau ${level.rank} sur 4, score de maturité de ${r.score} sur 100`}>
               <div className="scale-track">
                 {LEVEL_ORDER.map((key) => <span key={key} className={`scale-seg${key === r.level ? ' is-current' : ''}`} style={{ '--lvl': lvlVar(key) }} />)}
-                <span className="scale-marker" style={{ '--pos': `${markerPos}%` }}><b>{dec.format(r.average)}</b></span>
+                <span className="scale-marker" style={{ '--pos': `${markerPos}%` }}><b>{r.score}/100</b></span>
               </div>
               <div className="scale-labels">{LEVEL_ORDER.map((key) => <span key={key} className={key === r.level ? 'is-current' : undefined}>{LEVELS[key].short}</span>)}</div>
             </div>
@@ -80,19 +81,27 @@ export default function Results({ sample = false }) {
 
       <section className="container result-grid">
         <article className="card">
-          <h2 className="card-title">Répartition de vos réponses</h2>
-          <p className="card-sub">Chaque réponse correspond à un niveau de maturité. Total : <strong id="total-points">{r.total}</strong> points.</p>
-          <table className="dist" id="distribution">
-            <thead><tr><th scope="col">Niveau</th><th scope="col">Part de vos réponses</th><th scope="col">Points</th><th scope="col">Statut</th></tr></thead>
+          <h2 className="card-title">Progression par niveau</h2>
+          <p className="card-sub">Score de maturité : <strong id="maturity-score">{r.score}</strong>/100. Un niveau est validé dès que {pct.format(THRESHOLD * 100)}&nbsp;% de ses points sont acquis (trait sur la barre) et que les niveaux précédents le sont aussi.</p>
+          <table className="dist" id="levels-progress">
+            <thead><tr><th scope="col">Niveau</th><th scope="col">Progression</th><th scope="col">Points</th><th scope="col">Statut</th></tr></thead>
             <tbody>
-              {r.rows.map((row) => (
-                <tr key={row.key} style={{ '--lvl': lvlVar(row.key) }}>
-                  <th scope="row"><span className="swatch" />{LEVELS[row.key].title}</th>
-                  <td><div className="bar-cell"><div className="bar" title={`${LEVELS[row.key].title} : ${row.points} réponse${row.points > 1 ? 's' : ''} (${row.share} %)`}><span style={{ '--w': `${row.share}%` }} /></div><span className="bar-val">{row.share} %</span></div></td>
-                  <td className="num">{row.points}</td>
-                  <td>{BADGES[row.status]}</td>
-                </tr>
-              ))}
+              {LEVEL_ORDER.map((key, i) => {
+                const step = r.steps[i - 1]; // le niveau 1 est le point de départ : pas de questions propres
+                const share = step ? Math.round(step.ratio * 100) : null;
+                return (
+                  <tr key={key} style={{ '--lvl': lvlVar(key) }}>
+                    <th scope="row"><span className="swatch" />{LEVELS[key].title}</th>
+                    <td>
+                      {step
+                        ? <div className="bar-cell"><div className="bar bar-threshold" style={{ '--threshold': `${THRESHOLD * 100}%` }} title={`${LEVELS[key].title} : ${step.earned} points sur ${step.max} (${share} %)`}><span style={{ '--w': `${share}%` }} /></div><span className="bar-val">{share} %</span></div>
+                        : <span className="bar-note">Point de départ</span>}
+                    </td>
+                    <td className="num">{step ? `${step.earned} / ${step.max}` : '—'}</td>
+                    <td>{BADGES[step ? step.status : 'base']}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </article>
