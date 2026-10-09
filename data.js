@@ -37,7 +37,7 @@ const LEVELS = {
     short: 'Collaborative',
     image: 'assets/img/niveau-c.webp',
     description: "Maîtrise totale des flux d'un bout à l'autre de la chaîne, système hyperconnecté plus efficace, fiable et performant dans son intégralité",
-    details: "Afin de gagner en maturité, Logistics in Wallonia vous donne l'opportunité de bénéficier du savoir et de l'expérience d'un expert Supply Chain au travers d'un diagnostic de votre logistique et votre supply chain. Vous recevrez ainsi des recommandations spécifiques pour votre situation particulière, tenant compte de vos ressources et vos objectifs propres !",
+    details: "Afin de gagner en maturité, Logistics vous donne l'opportunité de bénéficier du savoir et de l'expérience d'un expert Supply Chain au travers d'un diagnostic de votre logistique et votre supply chain. Vous recevrez ainsi des recommandations spécifiques pour votre situation particulière, tenant compte de vos ressources et vos objectifs propres !",
     risks: [],
   },
 };

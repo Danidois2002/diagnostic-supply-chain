@@ -4,7 +4,7 @@
 
 **Un quiz interactif pour évaluer la maturité de la Supply Chain d'une entreprise, en 27 questions et 5 minutes.**
 
-Conçu lors de mon stage chez [Logistics in Wallonia](https://www.logisticsinwallonia.be/) (mai – juin 2025), puis entièrement repensé côté UI/UX.
+Conçu lors de mon stage dans une entreprise de logistique (mai – juin 2025), puis entièrement repensé côté UI/UX.
 
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white)
@@ -48,7 +48,7 @@ Chaque affirmation appartient à un niveau (Fragmentée, Excellence interne, Int
 - **Accessibilité** : navigation au clavier, fenêtres `<dialog>` natives, réglage « réduire les animations » respecté, couleurs des niveaux validées pour le daltonisme.
 
 > [!NOTE]
-> Cette version publique est une **démonstration** : aucune donnée n'est envoyée. La version utilisée par Logistics in Wallonia est en PHP : elle enregistre chaque diagnostic dans un fichier Excel (PhpSpreadsheet), le dépose sur SharePoint et envoie le rapport PDF par e-mail (mPDF, PHPMailer).
+> Cette version publique est une **démonstration** : aucune donnée n'est envoyée. La version d'origine, réalisée pendant le stage, est en PHP : elle enregistre chaque diagnostic dans un fichier Excel (PhpSpreadsheet), le dépose sur SharePoint et envoie le rapport PDF par e-mail (mPDF, PHPMailer).
 
 ## 🚀 Lancer en local
 

@@ -371,6 +371,11 @@ function renderResults({ answers = state.answers, lead = state.lead, sample = fa
 }
 
 $('#print-report').addEventListener('click', () => window.print());
+$('#expert-request').addEventListener('click', () => openSheet({
+  kicker: 'Version de démonstration',
+  title: 'Demander un diagnostic expert',
+  html: '<p class="sheet-lead">Dans la version utilisée en entreprise, ce bouton met en relation avec un expert Supply Chain pour un diagnostic complet.</p><p>Cette démonstration n\'envoie aucune donnée. Vous pouvez en revanche télécharger votre rapport en PDF.</p>',
+}));
 $('#restart').addEventListener('click', () => {
   if (!sampleMode) resetState(); // l'exemple ne touche pas au diagnostic en cours
   location.hash = '#/diagnostic';

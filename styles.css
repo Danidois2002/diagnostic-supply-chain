@@ -1,5 +1,5 @@
 /* =========================================================
-   Diagnostic Supply Chain — Logistics in Wallonia
+   Diagnostic Supply Chain — Logistics
    ========================================================= */
 :root {
   --paper: #f5f3ee;
@@ -69,8 +69,6 @@ p { margin: 0; }
 .btn-ink:hover { background: var(--ink-2); }
 .btn-ghost { border-color: var(--line-strong); background: transparent; color: var(--ink); }
 .btn-ghost:hover { border-color: var(--ink); }
-.btn-outline-light { border-color: rgba(255, 255, 255, .35); color: #fff; }
-.btn-outline-light:hover { border-color: #fff; }
 .btn.is-ready { animation: ready 2.2s var(--ease) infinite; }
 @keyframes ready { 0%, 60%, 100% { box-shadow: 0 0 0 0 rgba(241, 181, 28, 0); } 30% { box-shadow: 0 0 0 7px rgba(241, 181, 28, .35); } }
 .link-btn { padding: 0; border: 0; background: none; cursor: pointer; font-weight: 700; font-size: .92rem; color: var(--ink); text-decoration: underline; text-decoration-color: var(--yellow); text-decoration-thickness: 2px; text-underline-offset: 4px; }
@@ -86,7 +84,7 @@ p { margin: 0; }
   border-bottom: 1px solid transparent; transition: border-color .3s;
 }
 .topbar.scrolled, body:not([data-view="landing"]) .topbar { border-color: var(--line); }
-.brand img { height: 36px; width: auto; }
+.brand img { height: 30px; width: auto; }
 .nav { display: flex; gap: .25rem; margin-left: auto; }
 .nav a { padding: .5rem .85rem; border-radius: 999px; font-weight: 600; font-size: .93rem; color: var(--muted); text-decoration: none; transition: color .2s, background .2s; }
 .nav a:hover { color: var(--ink); background: rgba(22, 24, 27, .05); }
@@ -217,7 +215,7 @@ mark { background: linear-gradient(transparent 60%, var(--yellow) 60%, var(--yel
 
 .footer { padding: 2.2rem 0; border-top: 1px solid var(--line); }
 .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
-.footer img { height: 30px; width: auto; }
+.footer img { height: 26px; width: auto; }
 .footer p { text-align: right; font-size: .88rem; color: var(--muted); }
 body:not([data-view="landing"]) .footer { display: none; }
 
@@ -390,7 +388,7 @@ body:not([data-view="landing"]) .footer { display: none; }
 .next-steps p { margin-top: .8rem; color: rgba(255, 255, 255, .72); line-height: 1.7; }
 .next-actions { display: grid; gap: .7rem; justify-items: stretch; }
 .result-tools { display: flex; flex-wrap: wrap; justify-content: center; gap: .8rem; padding: 2.5rem 0 5rem; }
-.print-head, .print-only { display: none; }
+.print-head { display: none; }
 
 /* ---------- Fenêtre (définitions / niveaux) ---------- */
 .sheet {
@@ -441,7 +439,7 @@ body:not([data-view="landing"]) .footer { display: none; }
 @media (max-width: 640px) {
   .container { width: min(calc(100% - 32px), var(--container)); }
   .topbar { gap: .8rem; padding-left: 16px; padding-right: 16px; }
-  .brand img { height: 28px; }
+  .brand img { height: 24px; }
   .topbar-cta { padding: .5rem .85rem; font-size: .82rem; }
   .hero-actions .btn { flex: 1 1 100%; }
   .hero-visual { padding: .8rem; }
@@ -478,7 +476,6 @@ body:not([data-view="landing"]) .footer { display: none; }
   .print-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 8mm; margin-bottom: 4mm; border-bottom: 2px solid var(--ink); }
   .print-head img { height: 30px; width: auto; }
   .print-head p { font-size: 9pt; color: var(--muted); }
-  .print-only { display: block; }
   .result-hero { padding: 0 0 6mm; }
   .container { width: 100%; }
   .result-hero-grid { grid-template-columns: 1fr 45mm; gap: 8mm; }

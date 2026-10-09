@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Diagnostic Supply Chain — Logistics in Wallonia</title>
+  <title>Diagnostic Supply Chain — Logistics</title>
   <meta name="description" content="Évaluez la maturité de votre Supply Chain en 5 minutes : 27 questions, 7 thématiques et un résultat immédiat avec vos risques et vos pistes d'amélioration." />
   <meta name="theme-color" content="#f5f3ee" />
   <meta property="og:title" content="Challengez la maturité de votre Supply Chain" />
@@ -12,14 +12,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,300..900;1,62..125,300..900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=6" />
+  <link rel="stylesheet" href="styles.css?v=7" />
 </head>
 <body data-view="landing">
   <a class="skip-link" href="#contenu">Aller au contenu</a>
 
   <header class="topbar" id="topbar">
     <a class="brand" href="#/" aria-label="Diagnostic Supply Chain, accueil">
-      <img src="assets/img/logo-liw.png" alt="Logistics in Wallonia" width="184" height="48" />
+      <img src="assets/img/logo-logistics.webp" alt="Logistics" width="154" height="32" />
     </a>
     <nav class="nav" aria-label="Navigation principale">
       <a href="#fonctionnement">Comment ça marche</a>
@@ -224,7 +224,7 @@
     <!-- ======================= RÉSULTATS ======================= -->
     <div class="view" id="view-results" hidden>
       <div class="print-head">
-        <img src="assets/img/logo-liw.png" alt="Logistics in Wallonia" width="184" height="48" />
+        <img src="assets/img/logo-logistics.webp" alt="Logistics" width="154" height="32" />
         <p>Résultats du test de maturité Supply Chain · <span id="print-date"></span></p>
       </div>
 
@@ -255,13 +255,11 @@
           <div class="next-steps">
             <div>
               <h2 class="card-title">Pour aller plus loin</h2>
-              <p>Ce quiz donne un aperçu rapide de votre niveau de maturité Supply Chain. Pour un diagnostic complet et personnalisé, un expert de Logistics in Wallonia analyse votre logistique et vous formule des recommandations adaptées à vos ressources et à vos objectifs.</p>
+              <p>Ce quiz donne un aperçu rapide de votre niveau de maturité Supply Chain. Pour un diagnostic complet et personnalisé, un expert Logistics analyse votre logistique et vous formule des recommandations adaptées à vos ressources et à vos objectifs.</p>
             </div>
             <div class="next-actions no-print">
-              <a class="btn btn-yellow" href="https://www.logisticsinwallonia.be/contact/" target="_blank" rel="noopener">Demander un diagnostic expert</a>
-              <a class="btn btn-outline-light" href="tel:+3242255060">Appeler le +32 (0) 4 225 50 60</a>
+              <button class="btn btn-yellow" type="button" id="expert-request">Demander un diagnostic expert</button>
             </div>
-            <p class="print-only">Contact : +32 (0) 4 225 50 60 · www.logisticsinwallonia.be</p>
           </div>
         </article>
       </section>
@@ -278,8 +276,8 @@
 
   <footer class="footer">
     <div class="container footer-inner">
-      <img src="assets/img/logo-liw.png" alt="Logistics in Wallonia" width="147" height="38" loading="lazy" />
-      <p>Diagnostic de maturité Supply Chain conçu pour <a href="https://www.logisticsinwallonia.be/" target="_blank" rel="noopener">Logistics in Wallonia</a>.<br>Version de démonstration réalisée par Danial Bitar.</p>
+      <img src="assets/img/logo-logistics.webp" alt="Logistics" width="125" height="26" loading="lazy" />
+      <p>Diagnostic de maturité Supply Chain.<br>Version de démonstration réalisée par Danial Bitar.</p>
     </div>
   </footer>
 
@@ -291,7 +289,7 @@
     <div id="sheet-body"></div>
   </dialog>
 
-  <script src="data.js?v=2"></script>
-  <script src="script.js?v=6"></script>
+  <script src="data.js?v=3"></script>
+  <script src="script.js?v=7"></script>
 </body>
 </html>
